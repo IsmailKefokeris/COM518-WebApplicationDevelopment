@@ -1,11 +1,32 @@
 const express = require("express");
 const app = express();
+const mysql = require('mysql2');
 
-WEB_PORT = 5050;
+const db = mysql.createConnection({
+    host: 'localhost',
+    user: 'ismailk',
+	password: 'ismailk',
+    database: 'waddb'
+});
+
+
+WEB_PORT = 3000;
 
 app.get("/", (req, res) => {
-	res.send("HELLO WORLD")
+	res.send("HELLO");
 });
+
+app.get("/songs/:artist", (req, res) => {
+	db.query(`SELECT * FROM wadsongs WHERE artist=?`,
+			[req.params.artist], (error, results, fields) => {
+		if(error){
+			res.status(500).json({ error: error });
+		} else {
+            res.json(results);
+        }
+	})
+});
+
 
 
 app.listen(WEB_PORT, () => {
