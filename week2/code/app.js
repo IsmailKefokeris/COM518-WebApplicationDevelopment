@@ -16,7 +16,18 @@ app.get("/", (req, res) => {
 	res.send("HELLO");
 });
 
-app.get("/songs/:artist", (req, res) => {
+app.get("/songs", (req, res) => {
+	db.query(`SELECT * FROM wadsongs`, (error, results, fields) => {
+		if(error){
+			res.status(500).json({ error: error });
+		} else {
+            res.json(results);
+        }
+	})
+});
+
+// Search by artist
+app.get("/songs/artist/:artist", (req, res) => {
 	db.query(`SELECT * FROM wadsongs WHERE artist=?`,
 			[req.params.artist], (error, results, fields) => {
 		if(error){
@@ -27,8 +38,61 @@ app.get("/songs/:artist", (req, res) => {
 	})
 });
 
+// Search by title
+app.get("/songs/title/:title", (req, res) => {
+	db.query(`SELECT * FROM wadsongs WHERE title=?`,
+			[req.params.title], (error, results, fields) => {
+		if(error){
+			res.status(500).json({ error: error });
+		} else {
+            res.json(results);
+        }
+	})
+});
+
+// Search by artist and title
+app.get("/songs/artist/:artist/title/:title", (req, res) => {
+	db.query(`SELECT * FROM wadsongs WHERE title=? AND artist=?`,
+			[req.params.title, req.params.artist], (error, results, fields) => {
+		if(error){
+			res.status(500).json({ error: error });
+		} else {
+            res.json(results);
+        }
+	})
+});
+
+// Search for song with ID
+app.get("/songs/:ID", (req, res) => {
+	db.query(`SELECT * FROM wadsongs WHERE ID=?`,
+			[req.params.ID], (error, results, fields) => {
+		if(error){
+			res.status(500).json({ error: error });
+		} else {
+            res.json(results);
+        }
+	})
+});
+
+
+// Buy a copy of a song
+app.post("/songs/buy/:ID", (req, res) => {
+	db.query(`UPDATE wadsongs SET quantity = quantity -1 WHERE ID=?`, 
+			 [req.params.ID], (error, results, fields) => {
+		if(error){
+			res.status(500).json({ error: error });
+		} else if(results.affectedRows==1) {
+            res.json({'message': 'Successfully bought.'});
+        } else {
+            res.status(404).json({error: 'No rows updated, could not find a record matching that ID'});
+        }
+	})
+})
+
 
 
 app.listen(WEB_PORT, () => {
-    console.log(`Example app listening at http://localhost:${WEB_PORT}`);
+    console.log(`Example app listening at https://classcontainer-mpmyd.run-eu-central1.goorm.io on port ${WEB_PORT}`);
+	console.log(`You can access PHPMYADMIN @ https://inclasscontainer.run-eu-central1.goorm.io/phpmyadmin`);
+
 });
