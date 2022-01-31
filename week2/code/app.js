@@ -3,7 +3,9 @@ const app = express();
 
 WEB_PORT = 5050;
 
-
+app.get("/", (req, res) => {
+	res.send("HELLO WORLD")
+});
 
 
 app.listen(WEB_PORT, () => {
