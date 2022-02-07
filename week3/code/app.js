@@ -2,6 +2,9 @@ const express = require("express");
 const app = express();
 const mysql = require('mysql2');
 
+app.use(express.static("public"))
+app.set("view engine", "ejs");
+
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'ismailk',
@@ -13,8 +16,9 @@ const db = mysql.createConnection({
 WEB_PORT = 3000;
 
 app.get("/", (req, res) => {
-	res.send("HELLO");
+	res.render("home");
 });
+
 
 app.get("/songs", (req, res) => {
 	db.query(`SELECT * FROM wadsongs`, (error, results, fields) => {
@@ -28,7 +32,7 @@ app.get("/songs", (req, res) => {
 
 // Search by artist
 app.get("/songs/artist/:artist", (req, res) => {
-	db.query(`SELECT * FROM wadsongs WHERE artist=?`,
+	db.query(`SELECT * FROM wadsongs WHERE artist LIKE ?`,
 			[req.params.artist], (error, results, fields) => {
 		if(error){
 			res.status(500).json({ error: error });
@@ -40,7 +44,7 @@ app.get("/songs/artist/:artist", (req, res) => {
 
 // Search by title
 app.get("/songs/title/:title", (req, res) => {
-	db.query(`SELECT * FROM wadsongs WHERE title=?`,
+	db.query(`SELECT * FROM wadsongs WHERE title LIKE ?`,
 			[req.params.title], (error, results, fields) => {
 		if(error){
 			res.status(500).json({ error: error });
@@ -52,7 +56,7 @@ app.get("/songs/title/:title", (req, res) => {
 
 // Search by artist and title
 app.get("/songs/artist/:artist/title/:title", (req, res) => {
-	db.query(`SELECT * FROM wadsongs WHERE title=? AND artist=?`,
+	db.query(`SELECT * FROM wadsongs WHERE title LIKE ? AND artist LIKE ?`,
 			[req.params.title, req.params.artist], (error, results, fields) => {
 		if(error){
 			res.status(500).json({ error: error });
