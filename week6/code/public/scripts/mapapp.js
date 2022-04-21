@@ -8,7 +8,7 @@ L.tileLayer
             { attribution: attrib } ).addTo(map);
 
 // latitude(North(+)/South(-)), longitude(East(+)/West(-)).
-map.setView([39.2477, 21.1614], 2);
+map.setView([39.2477, 21.1614], 15);
 
 function setNewMarker(lat, lon, popup) {
     console.log("Marker set");

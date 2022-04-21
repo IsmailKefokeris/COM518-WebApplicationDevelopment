@@ -5,6 +5,9 @@ const db = require('./sqlcon');
 const fakeAuthentication = require('./middleware/fake_log');
 const sessionChecker = require('./middleware/session_checker');
 
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+
 const expressSession = require('express-session');
 const MySQLStore = require('express-mysql-session')(expressSession); // We pass expressSession as an argument for the mysql.
 const sessionStore = new MySQLStore( { }, db.promise()); // Create a new MySQLStore and we use our database object in promise mode
@@ -42,6 +45,9 @@ app.use(expressSession({
     }
 }));
 
+app.use(passport.initialize());
+app.use(passport.session());
+
 const usersRouter = require('./routes/users');
 require('dotenv').config();
 
@@ -58,9 +64,39 @@ app.set("view engine", "ejs");
 
 WEB_PORT = process.env.WEB_PORT;
 
+const usersDAO = require('./usersDAO');
+
+
+passport.use(new LocalStrategy(async(username, password, done)=> {
+    const userDao = new usersDAO(db, "acc_users");
+    try {
+        const userDetails = await userDao.login(username, password);
+
+        if(userDetails === null) {
+            return done(null, false);
+        } else {
+            return done(null, userDetails);
+        }
+    } catch(e) {
+        return done(e);
+    }
+}));
+
+
+app.post('/login',
+
+    passport.authenticate('local'),
+
+    (req, res) => {
+        res.json(req.user); 
+    }
+);
+
+
+
 
 app.get("/", (req, res) => {
-	res.render("home");
+	res.render("login");
 });
 
 

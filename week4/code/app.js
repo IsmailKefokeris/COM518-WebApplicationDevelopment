@@ -17,7 +17,7 @@ const db = mysql.createConnection({
 });
 
 
-WEB_PORT = 3000;
+WEB_PORT = process.env.PORT || 3000;
 
 
 app.get("/", (req, res) => {
